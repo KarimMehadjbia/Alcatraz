@@ -1,0 +1,39 @@
+image: gcc:9
+
+stages:
+  - build_stage
+  - test_stage
+
+build:
+  stage: build_stage
+  script:
+    - make
+  artifacts:
+    paths:
+      - alcatraz
+    expire_in: 30 mins
+
+test:
+  stage: test_stage
+  allow_failure: true
+  script:
+    - apt-get update && apt install --no-install-recommends -y libtap-formatter-junit-perl bats
+    - make
+    - ./mybats check.bats
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - "*.tap.xml"
+
+test-local:
+  stage: test_stage
+  script:
+    - apt-get update && apt install --no-install-recommends -y libtap-formatter-junit-perl bats
+    - make
+    - ./mybats local.bats
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - "*.tap.xml"

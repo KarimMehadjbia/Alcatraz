@@ -1,0 +1,13 @@
+#!/bin/bash
+
+err=0
+for i in "$@"; do
+	o="$(basename "$i" .bats).tap"
+	bats "$i" | tee "$o"
+	e=$PIPESTATUS
+	if [ e != 0 ]; then
+		err=$e
+	fi
+	tap2junit "$o"
+done
+exit "$err"
